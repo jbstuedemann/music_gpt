@@ -87,8 +87,9 @@ class MusicEncoder():
 
         if not self._token_path_exists:
             self._init_dir(self._tokens_path)
-            self.tokenizer.tokenize_midi_dataset(paths_to_midi, self._tokens_path)
+            self.tokenizer.tokenize_midi_dataset(paths_to_midi, self._tokens_path, apply_bpe=False)
             self._token_path_exists = True
+
         
         self.tokenizer.learn_bpe(vocab_size=self.vocab_size, tokens_paths=list(Path(self._tokens_path).glob("**/*.json")), start_from_empty_voc=False)
         self.tokenizer.save_params(self.tokenizer_config)
@@ -101,7 +102,7 @@ class MusicEncoder():
     def tokenize_dataset(self, paths_to_midi=[], use_cache=False):
         if not use_cache:
             self._init_dir(self._tokens_path)
-            self.tokenizer.tokenize_midi_dataset(paths_to_midi, self._tokens_path)
+            self.tokenizer.tokenize_midi_dataset(paths_to_midi, self._tokens_path, apply_bpe=False)
             self._token_path_exists = True
             if self.use_bpe:
                 self._init_dir(self._bpe_tokens_path)

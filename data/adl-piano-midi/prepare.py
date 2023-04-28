@@ -13,7 +13,7 @@ from encoder.encoder import MusicEncoder
 
 
 # Create dataset from one genre
-genre = None
+genre = "Pop"
 seed = 1234
 val_percent = 0.1
 VOCAB_SIZE = 1534
@@ -48,13 +48,12 @@ print(f"Could not parse {len(failed_files)} MIDI files...")
 
 # Train BPE on valid MIDI files
 print(f"Found {len(filtered_files)} valid MIDI files:\n{filtered_files[:5]}")
-encoder = MusicEncoder(VOCAB_SIZE, load_config=True, tokenizer_config="data/maestro-v3.0.0/tokenizer_config.json")
-# encoder = MusicEncoder(VOCAB_SIZE, load_config=False, tokenizer_config=os.path.join(os.path.dirname(__file__), "tokenizer_config.json"))
-# random.seed(seed)
-# random.shuffle(filtered_files)
+encoder = MusicEncoder(VOCAB_SIZE, load_config=True, tokenizer_config=os.path.join(os.path.dirname(__file__), "tokenizer_config.json"), use_bpe=False)
+random.seed(seed)
+random.shuffle(filtered_files)
 
-encoder.train_bpe(filtered_files)
-print(f"Trained BPE with vocab size of {len(encoder.tokenizer)}")
+# encoder.train_bpe(filtered_files)
+# print(f"Trained BPE with vocab size of {len(encoder.tokenizer)}")
 
 
 # Create train and validation splits
@@ -64,8 +63,15 @@ val_files = filtered_files[train_len:]
 
 train_dataset = encoder.tokenize_dataset(train_files)
 print(f"Train has {len(train_dataset):,} tokens")
-train_dataset.tofile(os.path.join(os.path.dirname(__file__), "train.bin"))
+if genre == None:
+    train_dataset.tofile(os.path.join(os.path.dirname(__file__), "train.bin"))
+else:
+    train_dataset.tofile(os.path.join(os.path.dirname(__file__), genre, "train.bin"))
 
 val_dataset = encoder.tokenize_dataset(val_files)
 print(f"Validation has {len(val_dataset):,} tokens")
-val_dataset.tofile(os.path.join(os.path.dirname(__file__), "val.bin"))
+if genre == None:
+    val_dataset.tofile(os.path.join(os.path.dirname(__file__), "val.bin"))
+else:
+    val_dataset.tofile(os.path.join(os.path.dirname(__file__), genre, "val.bin"))
+    
